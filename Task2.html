@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CodeSoft</title>
+</head>
+
+<body>
+    <script>
+import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Table, TableHeader, TableRow, TableCell, TableBody } from "@/components/ui/table";
+import axios from "axios";
+
+const ProjectManagement = () => {
+  const [projects, setProjects] = useState([]);
+  const [newProject, setNewProject] = useState("");
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get("/api/projects");
+      setProjects(response.data);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  };
+
+  const addProject = async () => {
+    if (!newProject) return;
+    try {
+      const response = await axios.post("/api/projects", { name: newProject });
+      setProjects([...projects, response.data]);
+      setNewProject("");
+    } catch (error) {
+      console.error("Error adding project:", error);
+    }
+  };
+
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Project Management</h1>
+      <div className="mb-4 flex gap-2">
+        <Input
+          placeholder="New Project Name"
+          value={newProject}
+          onChange={(e) => setNewProject(e.target.value)}
+        />
+        <Button onClick={addProject}>Add Project</Button>
+      </div>
+      <Card>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableCell>Project Name</TableCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {projects.map((project) => (
+                <TableRow key={project.id}>
+                  <TableCell>{project.name}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default ProjectManagement;
+    </script>
+</body>
+</html>
